@@ -6,22 +6,22 @@ This project aims to create a RESTful API with CRUD functions using Python
 
 ## Table of Contents
 
-- Installation
-- Usage
-- Testing
-- Metrics
+- [Installation](#installation)
+- [Usage](#usage)
+- [Testing](#testing)
+- [Metrics](#metrics)
 
 ## Installation
 
 ```bash
- pip install Flask Flask-SQLAlchemy Flask-HTTPAuth pytest
+ poetry install
 ```
 
 ## Usage
 
 1. Run app.py 
 ```bash
- python3 app.py
+ poetry run python app.py
 ```
 
 2. Edit the database using curl methods. Examples:
@@ -55,7 +55,7 @@ This project aims to create a RESTful API with CRUD functions using Python
 ## Testing
 
 ```bash
- python3 test_app.py
+ poetry run pytest
 ```
 
 ## Metrics

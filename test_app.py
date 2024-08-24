@@ -29,6 +29,14 @@ def test_create_user(test_client):
         headers={"Authorization": "Basic YWRtaW46YWRtaW4="},  # admin:admin base64
     )
     assert response.status_code == 201
+    # Create the same user again
+    response = test_client.post(
+        "/users",
+        data=payload,
+        content_type="application/json",
+        headers={"Authorization": "Basic YWRtaW46YWRtaW4="},  # admin:admin base64
+    )
+    assert response.status_code == 409
 
 
 def test_get_users(test_client):
@@ -76,6 +84,24 @@ def test_delete_user(test_client):
         f"/users/{user_id}", headers={"Authorization": "Basic YWRtaW46YWRtaW4="}
     )
     assert response.status_code == 204
+
+
+def test_delete_nonexistent_user(test_client):
+    # Try to delete a user that does not exist
+    response = test_client.delete(
+        "/users/999", headers={"Authorization": "Basic YWRtaW46YWRtaW4="}
+    )
+    assert response.status_code == 404
+
+
+def test_create_user_unauthorized(test_client):
+    payload = json.dumps({"username": "testuser", "password": "testpassword"})
+    response = test_client.post(
+        "/users",
+        data=payload,
+        content_type="application/json",
+    )
+    assert response.status_code == 401
 
 
 if __name__ == "__main__":
