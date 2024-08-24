@@ -2,8 +2,9 @@ import logging
 
 from flask import Flask, abort, jsonify, request
 from flask_httpauth import HTTPBasicAuth
-from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import check_password_hash, generate_password_hash
+
+from models import User, db
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -17,32 +18,11 @@ app = Flask(__name__)
 # Configure the SQLite database URI
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
 
-# Initialize the SQLAlchemy ORM
-db = SQLAlchemy(app)
 
 # Initialize HTTP Basic Authentication
 auth = HTTPBasicAuth()
-
-
-# Define a User model for the database
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-
-    def set_password(self, password):
-        self.password_hash = generate_password_hash(password)
-
-    def check_password(self, password):
-        return check_password_hash(self.password_hash, password)
-
-    def to_dict(self):
-        # Convert the User object to a dictionary format
-        return {
-            "id": self.id,
-            "username": self.username,
-        }
 
 
 # Create the database and tables if they don't exist
@@ -90,11 +70,11 @@ def get_users():
     return jsonify([user.to_dict() for user in users]), 200
 
 
-# Endpoint to update an existing user (bonus)
+# Endpoint to update an existing user
 @app.route("/users/<int:user_id>", methods=["PUT"])
 @auth.login_required
 def update_user(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         abort(404, "User not found")
     data = request.json
@@ -111,17 +91,18 @@ def update_user(user_id):
     return jsonify(user.to_dict()), 200
 
 
-# Endpoint to delete a user (bonus)
+# Endpoint to delete a user
 @app.route("/users/<int:user_id>", methods=["DELETE"])
 @auth.login_required
 def delete_user(user_id):
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
     if not user:
         abort(404, "User not found")
     # Delete the user from the database
-    logger.info(f"User - {user.username} was deleted")
+    user_name = user.username
     db.session.delete(user)
     db.session.commit()
+    logger.info(f"User - {user_name} was deleted")
     # Return a 204 No Content status
     return "", 204
 
