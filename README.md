@@ -9,11 +9,12 @@ This project aims to create a RESTful API with CRUD functions using Python
 - Installation
 - Usage
 - Testing
+- Metrics
 
 ## Installation
 
 ```bash
- pip install Flask Flask-SQLAlchemy Flask-HTTPAuth
+ pip install Flask Flask-SQLAlchemy Flask-HTTPAuth pytest
 ```
 
 ## Usage
@@ -55,4 +56,11 @@ This project aims to create a RESTful API with CRUD functions using Python
 
 ```bash
  python3 test_app.py
+```
+
+## Metrics
+
+To see usage metrics:
+```bash
+curl -X GET "http://127.0.0.1:5000/metrics"
 ```
